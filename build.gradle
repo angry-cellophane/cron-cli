@@ -1,5 +1,7 @@
+
 plugins {
-	id 'java-library'
+	id 'application'
+	id 'groovy'
 	id "io.freefair.lombok" version "6.0.0-m2"
 	id 'org.graalvm.buildtools.native' version '0.9.4'
 }
@@ -19,8 +21,15 @@ ext.SLF4J_VERSION = '1.7.30'
 dependencies {
 	implementation 'org.quartz-scheduler:quartz:2.3.0'
 
-	testImplementation(platform('org.junit:junit-bom:5.7.1'))
-	testImplementation('org.junit.jupiter:junit-jupiter')
+//	testImplementation(platform('org.junit:junit-bom:5.7.1'))
+//	testImplementation('org.junit.jupiter:junit-jupiter')
+	testImplementation platform("org.spockframework:spock-bom:2.0-groovy-3.0")
+	testImplementation "org.codehaus.groovy:groovy:3.0.8"
+	testImplementation "org.spockframework:spock-core:"
+}
+
+application {
+	mainClass = 'com.github.ka.cron.cli.App'
 }
 
 test {
