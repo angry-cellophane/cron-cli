@@ -1,0 +1,26 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-lastest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Set up GraalVM Native Image toolchain
+        uses: helpermethod/graalvm-native-image-toolchain@0.0.1
+        with:
+          graalvm-version: 21.2.0
+          java-version: 11
+      - name: Build and test
+        run: ./gradlew build
+      - name: build image
+        run: ./gradlew nativeBuild
+      - name: Upload linux artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: cron-cli-linux
+          path: ./build/native/nativeBuild/cron-cli
