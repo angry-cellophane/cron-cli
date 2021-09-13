@@ -28,6 +28,13 @@ public class App {
         }
     }
 
+    /**
+     * Trying to be smart and put a pointer under the field (or character) where the error occurred.
+     * Doesn't always work well.
+     * @param expression original cron expression from the app's arguments
+     * @param e error
+     * @return error message printed in console
+     */
     static String prettifyError(String expression, ParsingException e) {
         if (expression == null || expression.length() == 0) return e.getLocalizedMessage();
 
