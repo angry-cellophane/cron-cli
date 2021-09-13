@@ -143,6 +143,18 @@ public class Parser {
         return result;
     }
 
+    /**
+     * parses values without the / operation.
+     * @param value as string
+     * @param start of the boundary of acceptable values, included
+     * @param end of the boundary of acceptable values, included
+     * @return bitmask
+     *
+     * Checks:
+     * - if value contains "-" then it's a range, e.g. 1-15, so it sets all values between [1,15] to 1
+     * - if value contains "*" then it's a range that includes all available values (from start to end included)
+     * - otherwise it's a single value
+     */
     static long parseDividend(String value, int start, int end) {
         long result = 0;
         int actualStart = start;
