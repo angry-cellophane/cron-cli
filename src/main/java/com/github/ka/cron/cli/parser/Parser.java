@@ -4,7 +4,6 @@ import com.github.ka.cron.cli.ParsingException;
 import com.github.ka.cron.cli.Schedule;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Basic cron parser.
@@ -25,7 +24,7 @@ public class Parser {
 
     @FunctionalInterface
     interface UpdateField {
-        Schedule.ScheduleBuilder update(Schedule.ScheduleBuilder schedule, String value);
+        Schedule update(Schedule schedule, String value);
     }
 
     static final List<UpdateField> FIELDS = List.of(
@@ -37,12 +36,9 @@ public class Parser {
             Parser::parseCommand
     );
 
-    public static Schedule parse(String expression) {
-        Objects.requireNonNull(expression, "expression");
-
-        var schedule = Schedule.builder();
-        var fields = expression.split(" \t");
-        validateSizeOfFields(fields, expression);
+    public static Schedule parse(String[] fields) {
+        var schedule = Schedule.builder().build();
+        validateSizeOfFields(fields);
 
         int fieldStartAt = 0;
         try {
@@ -58,49 +54,62 @@ public class Parser {
             throw new ParsingException(e.getLocalizedMessage(), updatedPosition);
         }
 
-        return schedule.build();
+        return schedule;
     }
 
 
-    static void validateSizeOfFields(String[] fields, String expression) {
+    static void validateSizeOfFields(String[] fields) {
         if (fields == null || fields.length != FIELDS.size()) {
             var size = fields == null ? 0 : fields.length;
             var message = String.format("Expected %d fields \"min hour dayOfMonth month dayOfWeek command\" " +
-                    "in cron expression but got %d in %s", FIELDS.size(), size, expression);
+                    "in cron expression but got %d", FIELDS.size(), size);
             throw new ParsingException(message);
         }
     }
 
-    static Schedule.ScheduleBuilder parseMinutes(Schedule.ScheduleBuilder schedule, String value) {
+    static Schedule parseMinutes(Schedule schedule, String value) {
         var minute = parseValue(value.trim(), 0, 59);
-        return schedule.minute(minute);
+        return schedule.toBuilder()
+                .minute(schedule.getMinute() | minute)
+                .build();
     }
 
-    static Schedule.ScheduleBuilder parseHour(Schedule.ScheduleBuilder schedule, String value) {
+    static Schedule parseHour(Schedule schedule, String value) {
         var hour = parseValue(value.trim(), 0, 23);
-        return schedule.hour(hour);
+        return schedule.toBuilder()
+                .hour(schedule.getHour() | hour)
+                .build();
     }
 
-    static Schedule.ScheduleBuilder parseDom(Schedule.ScheduleBuilder schedule, String value) {
+    static Schedule parseDom(Schedule schedule, String value) {
         var dom = parseValue(value.trim(), 1, 31);
-        return schedule.dayOfMonth(dom);
+        return schedule.toBuilder()
+                .dayOfMonth(schedule.getDayOfMonth() | dom)
+                .build();
     }
 
-    static Schedule.ScheduleBuilder parseMonth(Schedule.ScheduleBuilder schedule, String value) {
+    static Schedule parseMonth(Schedule schedule, String value) {
         var month = parseValue(value.trim(), 1, 12);
-        return schedule.month(month);
+        return schedule.toBuilder()
+                .month(schedule.getMonth() | month)
+                .build();
     }
 
-    static Schedule.ScheduleBuilder parseDow(Schedule.ScheduleBuilder schedule, String value) {
+    static Schedule parseDow(Schedule schedule, String value) {
         var dow = parseValue(value.trim(), 0, 6);
-        return schedule.dayOfWeek(dow);
+        return schedule.toBuilder()
+                .dayOfWeek(schedule.getDayOfWeek() | dow)
+                .build();
     }
 
-    static Schedule.ScheduleBuilder parseCommand(Schedule.ScheduleBuilder schedule, String value) {
-        return schedule.command(value.trim());
+    static Schedule parseCommand(Schedule schedule, String value) {
+        return schedule.toBuilder()
+                .command(value.trim())
+                .build();
     }
 
     /*
+        Accepts following formats:
         1-15
         *
         * /15

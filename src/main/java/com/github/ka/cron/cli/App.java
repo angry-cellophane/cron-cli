@@ -10,9 +10,9 @@ public class App {
         try {
             validateArgs(args);
 
-            printer.print(Parser.parse(args[0]));
+            printer.print(Parser.parse(args));
         } catch (ParsingException e) {
-            printer.printError(prettifyError(args[0], e));
+            printer.printError(prettifyError(String.join(" ", args), e));
             System.exit(1);
         } catch (Exception e) {
             // TODO create a file with error log, ask user to submit the log
@@ -26,7 +26,7 @@ public class App {
             throw new ParsingException("Expected cron expression in arguments but got nothing." + USAGE);
         }
 
-        if (args.length != 1) {
+        if (args.length != 6) {
             throw new ParsingException("Expected one cron expression in arguments but found "
                     + args.length + "arguments. Cron expression should be wrapped in single quotes."
                     + USAGE);

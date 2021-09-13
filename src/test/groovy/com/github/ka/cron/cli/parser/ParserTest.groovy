@@ -5,6 +5,9 @@ import com.github.ka.cron.cli.Schedule
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import static com.github.ka.cron.cli.BitUtils.bits
+import static com.github.ka.cron.cli.BitUtils.setBitRange
+
 class ParserTest extends Specification {
 
     @Unroll
@@ -40,13 +43,13 @@ class ParserTest extends Specification {
     @Unroll
     void 'parse minute #name'() {
         given:
-        def schedule = Schedule.builder()
+        def schedule = Schedule.builder().build()
 
         when:
         schedule = Parser.parseMinutes(schedule, value)
 
         then:
-        schedule.build().minute == expected
+        schedule.minute == expected
 
         where:
         value   | expected               | name
@@ -60,7 +63,7 @@ class ParserTest extends Specification {
     @Unroll
     void 'parse minute throws error when #name'() {
         given:
-        def schedule = Schedule.builder()
+        def schedule = Schedule.builder().build()
 
         when:
         Parser.parseMinutes(schedule, value)
@@ -77,13 +80,13 @@ class ParserTest extends Specification {
     @Unroll
     void 'parse hour #name'() {
         given:
-        def schedule = Schedule.builder()
+        def schedule = Schedule.builder().build()
 
         when:
         schedule = Parser.parseHour(schedule, value)
 
         then:
-        schedule.build().hour == expected
+        schedule.hour == expected
 
         where:
         value   | expected           | name
@@ -97,7 +100,7 @@ class ParserTest extends Specification {
     @Unroll
     void 'parse hour throws error when #name'() {
         given:
-        def schedule = Schedule.builder()
+        def schedule = Schedule.builder().build()
 
         when:
         Parser.parseHour(schedule, value)
@@ -115,13 +118,13 @@ class ParserTest extends Specification {
     @Unroll
     void 'parse dom #name'() {
         given:
-        def schedule = Schedule.builder()
+        def schedule = Schedule.builder().build()
 
         when:
         schedule = Parser.parseDom(schedule, value)
 
         then:
-        schedule.build().dayOfMonth == expected
+        schedule.dayOfMonth == expected
 
         where:
         value   | expected            | name
@@ -135,7 +138,7 @@ class ParserTest extends Specification {
     @Unroll
     void 'parse dom throws error when #name'() {
         given:
-        def schedule = Schedule.builder()
+        def schedule = Schedule.builder().build()
 
         when:
         Parser.parseDom(schedule, value)
@@ -154,13 +157,13 @@ class ParserTest extends Specification {
     @Unroll
     void 'parse month #name'() {
         given:
-        def schedule = Schedule.builder()
+        def schedule = Schedule.builder().build()
 
         when:
         schedule = Parser.parseMonth(schedule, value)
 
         then:
-        schedule.build().month == expected
+        schedule.month == expected
 
         where:
         value   | expected           | name
@@ -174,7 +177,7 @@ class ParserTest extends Specification {
     @Unroll
     void 'parse month throws error when #name'() {
         given:
-        def schedule = Schedule.builder()
+        def schedule = Schedule.builder().build()
 
         when:
         Parser.parseMonth(schedule, value)
@@ -194,13 +197,13 @@ class ParserTest extends Specification {
     @Unroll
     void 'parse dow #name'() {
         given:
-        def schedule = Schedule.builder()
+        def schedule = Schedule.builder().build()
 
         when:
         schedule = Parser.parseDow(schedule, value)
 
         then:
-        schedule.build().dayOfWeek == expected
+        schedule.dayOfWeek == expected
 
         where:
         value   | expected            | name
@@ -214,7 +217,7 @@ class ParserTest extends Specification {
     @Unroll
     void 'parse dow throws error when #name'() {
         given:
-        def schedule = Schedule.builder()
+        def schedule = Schedule.builder().build()
 
         when:
         Parser.parseDow(schedule, value)
@@ -231,13 +234,13 @@ class ParserTest extends Specification {
     @Unroll
     void 'parse command #name'() {
         given:
-        def schedule = Schedule.builder()
+        def schedule = Schedule.builder().build()
 
         when:
         schedule = Parser.parseCommand(schedule, value)
 
         then:
-        schedule.build().command == expected
+        schedule.command == expected
 
         where:
         value              | expected       | name
@@ -245,19 +248,22 @@ class ParserTest extends Specification {
         ' /usr/command   ' | '/usr/command' | 'trailing spaces deleted'
     }
 
-    static long setBitRange(int start, int end) {
-        long result = 0
-        for (int i = start; i <= end; i++) {
-            result |= (1L << i)
-        }
-        return result
-    }
+    void 'parse expression'() {
+        given:
+        def expected = Schedule.builder()
+                .minute(setBits(1, 2))
+                .hour(setBits(3, 4))
+                .dayOfMonth(setBits(5, 6))
+                .month(setBits(7, 9, 10))
+                .dayOfWeek(setBits(0, 3, 5))
+                .command("/usr/command")
+                .build()
+        def fields = ['1,2', '3,4', '5,6', '7,9,10', '0,3,5', '/usr/command'] as String[]
 
-    static long setBits(int ... bits) {
-        long result = 0
-        for (int b : bits) {
-            result |= (1L << b)
-        }
-        return result
+        when:
+        def schedule = Parser.parse(fields)
+
+        then:
+        schedule == expected
     }
 }

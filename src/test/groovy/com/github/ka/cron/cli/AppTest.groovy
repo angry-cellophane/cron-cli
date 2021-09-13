@@ -17,7 +17,7 @@ class AppTest extends Specification {
         args                   | caseName
         [] as String[]         | 'empty'
         null                   | 'null'
-        ['1', '2'] as String[] | 'len > 1'
+        ['1', '2', '3', '4', '5', '6', '7'] as String[] | 'len > 6'
     }
 
     void 'point at char where error occurred'() {
