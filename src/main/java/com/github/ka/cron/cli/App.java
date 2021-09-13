@@ -9,8 +9,9 @@ public class App {
         var printer = Printers.from(args);
         try {
             validateArgs(args);
+            var expression = String.join(" ", args);
 
-            printer.print(Parser.parse(args));
+            printer.print(Parser.parse(expression));
         } catch (ParsingException e) {
             printer.printError(prettifyError(String.join(" ", args), e));
             System.exit(1);
@@ -24,12 +25,6 @@ public class App {
     static void validateArgs(String[] args) {
         if (args == null || args.length == 0) {
             throw new ParsingException("Expected cron expression in arguments but got nothing." + USAGE);
-        }
-
-        if (args.length != 6) {
-            throw new ParsingException("Expected one cron expression in arguments but found "
-                    + args.length + "arguments. Cron expression should be wrapped in single quotes."
-                    + USAGE);
         }
     }
 

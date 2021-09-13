@@ -36,18 +36,24 @@ public class Parser {
             Parser::parseCommand
     );
 
-    public static Schedule parse(String[] fields) {
+    public static Schedule parse(String expression) {
         var schedule = Schedule.builder().build();
+        var fields = expression.split("\\s|\\t");
         validateSizeOfFields(fields);
 
         int fieldStartAt = 0;
         try {
             for (int i = 0; i < fields.length; i++) {
                 var ranges = fields[i].split(",");
-                for (var range: ranges) {
+                for (int j=0; j<ranges.length; j++) {
+                    var range = ranges[j];
                     schedule = FIELDS.get(i).update(schedule, range);
                     fieldStartAt += range.length();
+                    if (j != 0) {
+                        fieldStartAt++; // add one for comma
+                    }
                 }
+                fieldStartAt++; // add one for space between columns
             }
         } catch (ParsingException e) {
             var updatedPosition = e.getInvalidCharPosition() != -1 ? e.getInvalidCharPosition() + fieldStartAt : -1;

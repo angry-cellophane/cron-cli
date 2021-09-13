@@ -258,10 +258,10 @@ class ParserTest extends Specification {
                 .dayOfWeek(setBits(0, 3, 5))
                 .command("/usr/command")
                 .build()
-        def fields = ['1,2', '3,4', '5,6', '7,9,10', '0,3,5', '/usr/command'] as String[]
+        def expression = '1,2 3,4 5,6 7,9,10 0,3,5 /usr/command'
 
         when:
-        def schedule = Parser.parse(fields)
+        def schedule = Parser.parse(expression)
 
         then:
         schedule == expected
